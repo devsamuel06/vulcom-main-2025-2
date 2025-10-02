@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import cors from 'cors'
 dotenv.config() // Carrega as variáveis de ambiente do arquivo .env
 
 import express, { json, urlencoded } from 'express'
@@ -18,6 +19,10 @@ app.use(logger('dev'))
 app.use(json())
 app.use(urlencoded({ extended: false }))
 app.use(cookieParser())
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS.split(','),
+  
+}))
 
 /*********** ROTAS DA API **************/
 
