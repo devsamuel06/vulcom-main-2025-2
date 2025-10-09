@@ -8,12 +8,15 @@ import logger from 'morgan'
 
 const app = express()
 
-import cors from 'cors'
-
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS.split(','),
   // credentials: true
 }))
+
+// Middleware de verificação do token de autorização
+import auth from './middleware/auth.js'
+app.use(auth)
+
 
 app.use(logger('dev'))
 app.use(json())
