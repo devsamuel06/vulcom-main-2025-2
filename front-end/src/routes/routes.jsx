@@ -1,88 +1,127 @@
 
-import * as React from 'react';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
-import { Link } from 'react-router-dom';
-import MenuIcon from '@mui/icons-material/Menu';
-import AuthUserContext from '../contexts/AuthUserContext'
-import { routes, UserLevel } from '../routes/routes'
+/*
+ Define as rotas e suas informações, servindo como fonte única
+ de verdade para AppRoutes.jsx e MainMenu.jsx.
+*/
 
 
-export default function MainMenu() {
- const [anchorEl, setAnchorEl] = React.useState(null);
- const open = Boolean(anchorEl);
- const handleClick = (event) => {
-   setAnchorEl(event.currentTarget);
- };
- const handleClose = () => {
-   setAnchorEl(null);
- };
+import Homepage from '../pages/Homepage'
 
 
- const { authUser } = React.useContext(AuthUserContext)
+import Login from '../pages/Login'
 
 
- // Determina o nível do usuário autenticado
- let currentUserLevel = UserLevel.ANY
+import CustomerList from '../pages/customer/CustomerList'
+import CustomerForm from '../pages/customer/CustomerForm'
 
 
- if(!authUser) currentUserLevel = UserLevel.ANY
- else if(authUser.is_admin) currentUserLevel = UserLevel.ADMIN
- else currentUserLevel = UserLevel.AUTHENTICATED
+import CarList from '../pages/car/CarList'
+import CarForm from '../pages/car/CarForm'
 
 
- /*
-   Filtra as rotas que se tornarão itens de menu, excluindo:
-   - rotas com omitFromMainMenu === true
-   - rotas com userLevel > currentUserLevel
- */
- const menuRoutes = routes.filter(
-   r => !(r?.omitFromMainMenu) && r.userLevel <= currentUserLevel
- )
+import UserList from '../pages/user/UserList'
+import UserForm from '../pages/user/UserForm'
 
 
- return (
-   <div>
-       <IconButton
-           edge="start"
-           color="inherit"
-           aria-label="menu"
-           sx={{ mr: 2 }}
-           aria-controls={open ? 'basic-menu' : undefined}
-           aria-haspopup="true"
-           aria-expanded={open ? 'true' : undefined}
-           onClick={handleClick}
-         
-       >
-         <MenuIcon />
-       </IconButton>
-     <Menu
-       id="basic-menu"
-       anchorEl={anchorEl}
-       open={open}
-       onClose={handleClose}
-       slotProps={{
-         list: {
-           'aria-labelledby': 'basic-button',
-         }
-       }}
-     >
-       {
-         menuRoutes.map(r => (
-           <MenuItem
-             key={r.route}
-             onClick={handleClose}
-             component={Link}
-             to={r.route}
-             divider={r?.divider}
-           >
-             {r.description}
-           </MenuItem>
-         ))
-       }
-     </Menu>
-   </div>
- );
+import BruteForce from '../pages/BruteForce'
+
+
+/*
+ Os níveis de acesso foram definidos como segue:
+ 0 ~> qualquer usuário (incluindo quando não há usuário autenticado)
+ 1 ~> qualquer usuário autenticado
+ 2 ~> somente usuário administrador
+*/
+const UserLevel = {
+ ANY: 0,
+ AUTHENTICATED: 1,
+ ADMIN: 2
 }
+
+
+const routes = [
+ {
+   route: '/',
+   description: 'Início',
+   element: <Homepage />,
+   userLevel: UserLevel.ANY,
+   divider: true
+ },
+ {
+   route: '/login',
+   description: 'Entrar',
+   element: <Login />,
+   userLevel: UserLevel.ANY,
+   omitFromMainMenu: true
+ },
+ {
+   route: '/customers',
+   description: 'Listagem de clientes',
+   element: <CustomerList />,
+   userLevel: UserLevel.AUTHENTICATED
+ },
+ {
+   route: '/customers/new',
+   description: 'Cadastro de clientes',
+   element: <CustomerForm />,
+   userLevel: UserLevel.AUTHENTICATED,
+   divider: true
+ },
+ {
+   route: '/customers/:id',
+   description: 'Alterar cliente',
+   element: <CustomerForm />,
+   userLevel: UserLevel.ADMIN,
+   omitFromMainMenu: true
+ },
+ {
+   route: '/cars',
+   description: 'Listagem de veículos',
+   element: <CarList />,
+   userLevel: UserLevel.AUTHENTICATED
+ },
+ {
+   route: '/cars/new',
+   description: 'Cadastro de veículos',
+   element: <CarForm />,
+   userLevel: UserLevel.AUTHENTICATED,
+   divider: true
+ },
+ {
+   route: '/cars/:id',
+   description: 'Alterar veículo',
+   element: <CarForm />,
+   userLevel: UserLevel.ADMIN,
+   omitFromMainMenu: true
+ },
+ {
+   route: '/users',
+   description: 'Listagem de usuários',
+   element: <UserList />,
+   userLevel: UserLevel.ADMIN
+ },
+ {
+   route: '/users/new',
+   description: 'Cadastro de usuários',
+   element: <UserForm />,
+   userLevel: UserLevel.ADMIN
+ },
+ {
+   route: '/users/:id',
+   description: 'Alterar usuário',
+   element: <UserForm />,
+   userLevel: UserLevel.ADMIN,
+   omitFromMainMenu: true
+ },
+ {
+   route: '/brute-force',
+   description: 'Ataque de força bruta',
+   element: <BruteForce />,
+   userLevel: UserLevel.ADMIN,
+   divider: true
+ },
+]
+
+
+export { routes, UserLevel }
 
