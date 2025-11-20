@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker/locale/pt_BR'
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcrypt'
 
 const prisma = new PrismaClient();
 
@@ -30,12 +31,12 @@ async function main() {
       fullname: 'Administrador do Sistema',
       username: 'admin',
       email: 'admin@vulcom.com.br',
-      password: 'Vulcom@DSM',
+      password: await bcrypt.hash('Vulcom@DSM', 12),
       is_admin: true
     }
   })
   users.push(user)
-  
+
   for (let i = 0; i < numberOfUsers; i++) {
     const user = await prisma.user.create({
       data: {
@@ -52,7 +53,7 @@ async function main() {
   // Criar clientes
   const customers = [];
   const numberOfCustomers = 10;
-  
+
   for (let i = 0; i < numberOfCustomers; i++) {
     const customer = await prisma.customer.create({
       data: {
@@ -73,12 +74,12 @@ async function main() {
 
   // Criar carros
   const numberOfCars = 20;
-  
+
   for (let i = 0; i < numberOfCars; i++) {
     const hasCustomer = faker.datatype.boolean({ probability: 0.7 });
     const customer = hasCustomer ? faker.helpers.arrayElement(customers) : null;
     const willBeSold = faker.datatype.boolean({ probability: 0.5 });
-    
+
     await prisma.car.create({
       data: {
         brand: faker.vehicle.manufacturer(),
