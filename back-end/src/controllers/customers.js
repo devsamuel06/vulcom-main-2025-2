@@ -7,6 +7,13 @@ const controller = {}     // Objeto vazio
 controller.create = async function(req, res) {
  try {
 
+   /*
+   Vulnerabilidade: API3:2023 – Falha de autenticação a nível de propriedade / Atribuição em massa
+   Observação: Risco presente por passagem direta de req.body ao ORM.
+   - Onde: back-end/src/controllers/customers.js (await prisma.customer.create({ data: req.body }))
+   - Por que deveria ser evitada: embora haja validação Zod (Customer.parse(req.body)), o schema pode permitir campos extras. Passar req.body diretamente permite mass assignment de campos sensíveis (ex.: is_admin, created_user_id).
+   - Ação recomendada: tornar schemas Zod .strict() ou construir objeto whitelist antes de prisma.create/update; remover campos controlados pelo servidor do payload do cliente.
+   */
 
    // Sempre que houver um campo que represente uma data,
    // precisamos garantir sua conversão para o tipo Date

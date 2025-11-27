@@ -44,6 +44,22 @@ controller.create = async function(req, res) {
   }
 }
 
+/*
+Vulnerabilidade: API1:2023 – Falha de autenticação a nível de objeto
+Observação: NÃO mitigada nas operações de recurso.
+- Onde: back-end/src/controllers/cars.js
+- Por que deveria ser evitada: create usa req.authUser.id para created_user_id, mas update/delete/retrieveOne não mostram checagem de propriedade/pertencimento; sem verificação um usuário pode acessar/modificar objetos de terceiros.
+- Ação recomendada: em update/delete/retrieveOne buscar o registro (prisma.findUnique) e validar req.authUser.is_admin || owner_id === req.authUser.id antes de permitir ação.
+*/
+
+/*
+Vulnerabilidade: API3:2023 – Falha de autenticação a nível de propriedade / Atribuição em massa
+Observação: Risco presente quando os dados do cliente são passados diretamente ao ORM.
+- Onde: back-end/src/controllers/cars.js (e outros controllers)
+- Por que deveria ser evitada: embora exista validação Zod, schemas devem ser .strict() ou os dados devem ser mapeados para um whitelist antes de persistir.
+- Ação recomendada: usar schemas .strict() ou construir objeto com apenas campos permitidos antes de prisma.create/update; nunca enviar req.body cru ao ORM se houver campos controlados pelo servidor.
+*/
+
 controller.retrieveAll = async function(req, res) {
   try {
 

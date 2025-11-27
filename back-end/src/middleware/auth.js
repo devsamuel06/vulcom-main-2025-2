@@ -17,6 +17,14 @@ const bypassRoutes = [
 ]
 
 // Função do middleware
+/*
+Vulnerabilidade: API2:2023 – Falha de autenticação
+Observação: Autenticação por JWT existe (back-end/src/middleware/auth.js) mas está parcialmente falha.
+- Onde: back-end/src/middleware/auth.js
+- Por que deveria ser evitada: token é atribuído sem declaração (vazamento global); verificação de bypass compara req.url (contém querystring) — usar req.path ou comparar método+path; buscar cookie antes de cookieParser pode falhar.
+- Ação recomendada: declarar token localmente, usar req.path para comparar, aceitar header Authorization como fallback, validar com try/catch e setar req.authUser apenas após verificação.
+*/
+
 export default function(req, res, next) {
   /*
     Verificamos se a rota interceptada corresponde a

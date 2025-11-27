@@ -10,6 +10,12 @@ controller.create = async function (req, res) {
     // HTTP 403: Forbidden(
     if (!req?.authUser?.is_admin) return res.status(403).end()
 
+    /*
+    Vulnerabilidade: API3:2023 – Falha de autenticação a nível de propriedade / Atribuição em massa
+    Observação: Risco se criar/atualizar usuários aceitando req.body sem whitelist.
+    - Onde: back-end/src/controllers/users.js
+    - Ação recomendada: validar estritamente o payload com Zod .strict() ou mapear apenas campos permitidos (ex.: name, email) antes de persistir.
+    */
 
     // HTTP 201: Created
     res.status(201).end()
@@ -208,7 +214,13 @@ controller.login = async function (req, res) {
   }
 }
 
-
+/*
+Vulnerabilidade: API2:2023 – Falha de autenticação
+Observação: Cookie de autenticação inseguro ou uso incorreto pode expor tokens.
+- Onde: back-end/src/controllers/users.js (login/logout)
+- Por que deveria ser evitada: definir cookie não httpOnly permite roubo do token via XSS. Preferir cookie httpOnly, secure e sameSite; evitar retornar token no corpo.
+- Ação recomendada: setar res.cookie(process.env.AUTH_COOKIE_NAME, token, { httpOnly: true, secure: NODE_ENV === 'production', sameSite: 'Lax', maxAge })
+*/
 
 controller.me = function (req, res) {
   // Retorna as informações do usuário autenticado
